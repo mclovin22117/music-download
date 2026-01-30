@@ -1,0 +1,25 @@
+# FastAPI and server
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Celery and Redis
+celery==5.3.6
+redis==5.0.1
+
+# Spotify API
+spotipy==2.23.0
+
+# YouTube download
+yt-dlp==2024.1.7
+
+# Audio processing
+mutagen==1.47.0
+
+# HTTP client
+httpx==0.26.0
+requests==2.31.0
+
+# Environment variables
+python-dotenv==1.0.0
