@@ -1,16 +1,17 @@
 # Music Download API
 
-A FastAPI-based backend application that downloads music from Spotify URLs using YouTube as the audio source.
+A FastAPI-based backend application that downloads music from Spotify or YouTube URLs and converts them to MP3 with metadata.
 
 ## Features
 
-- Download single tracks from Spotify URLs
-- Download entire playlists
-- Automatic YouTube search and matching
-- MP3 conversion with metadata embedding
-- Album art embedding
-- Async task processing with Celery
-- Docker-based deployment
+- ✅ Download from **Spotify track URLs** (with automatic YouTube matching)
+- ✅ Download from **Spotify playlists**
+- ✅ Download from **YouTube video URLs** (direct)
+- ✅ Download from **YouTube playlists** (direct)
+- ✅ MP3 conversion with metadata embedding
+- ✅ Album art embedding
+- ✅ Async task processing with Celery
+- ✅ Docker-based deployment
 
 ## Architecture
 
@@ -27,7 +28,9 @@ A FastAPI-based backend application that downloads music from Spotify URLs using
 - Docker & Docker Compose
 - Spotify Developer Account
 
-### Getting Spotify API Credentials
+### Getting Spotify API Credentials (Optional)
+
+**Note**: Spotify API credentials are only required if you want to download from Spotify URLs. You can use YouTube URLs without any API credentials!
 
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new app
@@ -40,7 +43,7 @@ A FastAPI-based backend application that downloads music from Spotify URLs using
    ```bash
    cp .env.example .env
    ```
-3. Edit `.env` and add your Spotify credentials
+3. (Optional) Edit `.env` and add your Spotify credentials if you want Spotify support
 4. Build and start the services:
    ```bash
    docker-compose up --build
@@ -56,22 +59,46 @@ GET /health
 ```
 
 ### Download Single Track
-```
+
+**From Spotify:**
+```bash
 POST /api/v1/tracks/download
 Content-Type: application/json
 
 {
-  "spotify_url": "https://open.spotify.com/track/6rqhFgbbKwnb9MLmUQDhG6"
+  "url": "https://open.spotify.com/track/6rqhFgbbKwnb9MLmUQDhG6"
+}
+```
+
+**From YouTube:**
+```bash
+POST /api/v1/tracks/download
+Content-Type: application/json
+
+{
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 }
 ```
 
 ### Download Playlist
-```
+
+**From Spotify:**
+```bash
 POST /api/v1/playlists/download
 Content-Type: application/json
 
 {
-  "spotify_url": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+  "url": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+}
+```
+
+**From YouTube:**
+```bash
+POST /api/v1/playlists/download
+Content-Type: application/json
+
+{
+  "url": "https://www.youtube.com/playlist?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG"
 }
 ```
 

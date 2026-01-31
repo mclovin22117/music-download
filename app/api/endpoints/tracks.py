@@ -14,14 +14,14 @@ async def download_track(request: TrackDownloadRequest):
     Submit a track download task.
     
     Args:
-        request: Track download request with Spotify URL
+        request: Track download request with Spotify or YouTube URL
     
     Returns:
         Task ID and status
     """
     try:
         # Enqueue the task
-        task = download_track_task.delay(request.spotify_url)
+        task = download_track_task.delay(request.url)
         
         return TaskResponse(
             task_id=task.id,

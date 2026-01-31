@@ -3,15 +3,16 @@ Application configuration and environment variables.
 """
 import os
 from pathlib import Path
+from typing import Optional
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
-    # Spotify API
-    spotify_client_id: str
-    spotify_client_secret: str
+    # Spotify API (optional - only needed for Spotify URLs)
+    spotify_client_id: Optional[str] = None
+    spotify_client_secret: Optional[str] = None
     
     # Redis
     redis_host: str = "redis"

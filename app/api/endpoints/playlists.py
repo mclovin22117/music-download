@@ -14,14 +14,14 @@ async def download_playlist(request: PlaylistDownloadRequest):
     Submit a playlist download task.
     
     Args:
-        request: Playlist download request with Spotify URL
+        request: Playlist download request with Spotify or YouTube URL
     
     Returns:
         Task ID and status
     """
     try:
         # Enqueue the task
-        task = download_playlist_task.delay(request.spotify_url)
+        task = download_playlist_task.delay(request.url)
         
         return TaskResponse(
             task_id=task.id,

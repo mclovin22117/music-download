@@ -16,24 +16,24 @@ class TaskStatus(str, Enum):
 
 class TrackDownloadRequest(BaseModel):
     """Request model for downloading a single track."""
-    spotify_url: str = Field(..., description="Spotify track URL")
+    url: str = Field(..., description="Spotify track URL or YouTube video URL")
     
     class Config:
         json_schema_extra = {
             "example": {
-                "spotify_url": "https://open.spotify.com/track/6rqhFgbbKwnb9MLmUQDhG6"
+                "url": "https://open.spotify.com/track/6rqhFgbbKwnb9MLmUQDhG6"
             }
         }
 
 
 class PlaylistDownloadRequest(BaseModel):
     """Request model for downloading a playlist."""
-    spotify_url: str = Field(..., description="Spotify playlist URL")
+    url: str = Field(..., description="Spotify playlist URL or YouTube playlist URL")
     
     class Config:
         json_schema_extra = {
             "example": {
-                "spotify_url": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+                "url": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
             }
         }
 
