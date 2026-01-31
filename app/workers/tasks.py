@@ -84,7 +84,47 @@ def download_track_task(self, url: str) -> Dict:
                 "success": False,
                 "error": f"Invalid URL type for single track download: {url_type}",
                 "track": "Unknown"
-            }url: str) -> Dict:
+            }
+        
+        # Update task state
+        self.update_state(state="PROGRESS", meta={"step": "Downloading audio"})
+        
+        # Download audio
+        downloader = AudioDownloader(settings.download_dir)
+        output_file = downloader.download(youtube_url, metadata)
+        
+        if not output_file:
+            return {
+                "success": False,
+                "error": "Failed to download audio",
+                "track": metadata.title
+            }
+        
+        # Update task state
+        self.update_state(state="PROGRESS", meta={"step": "Embedding metadata"})
+        
+        # Embed metadata
+        metadata_service = MetadataService()
+        metadata_service.embed_metadata(output_file, metadata)
+        
+        return {
+            "success": True,
+            "track": metadata.title,
+            "artist": metadata.artist,
+            "file": str(output_file),
+            "source": url_type
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "track": "Unknown"
+        }
+
+
+@celery_app.task(bind=True, name="tasks.download_playlist")
+def download_playlist_task(self, url: str) -> Dict:
     """
     Download all tracks from a Spotify or YouTube playlist.
     
@@ -161,47 +201,7 @@ def download_track_task(self, url: str) -> Dict:
             "success": True,
             "total_tracks": len(results),
             "tasks": results,
-            "source": url_typename="tasks.download_playlist")
-def download_playlist_task(self, spotify_url: str) -> Dict:
-    """
-    Download all tracks from a playlist.
-    
-    Args:
-        spotify_url: Spotify playlist URL
-    
-    Returns:
-        Dictionary with download results
-    """
-    try:
-        # Update task state
-        self.update_state(state="PROGRESS", meta={"step": "Fetching playlist"})
-        
-        # Fetch playlist tracks
-        spotify_service = SpotifyService()
-        tracks = spotify_service.get_playlist_tracks(spotify_url)
-        
-        # Update task state
-        self.update_state(
-            state="PROGRESS",
-            meta={"step": f"Processing {len(tracks)} tracks"}
-        )
-        
-        # Create subtasks for each track
-        results = []
-        for track_metadata in tracks:
-            # For playlists, we need to construct a Spotify URL from the track ID
-            track_url = f"https://open.spotify.com/track/{track_metadata.spotify_id}"
-            result = download_track_task.delay(track_url)
-            results.append({
-                "task_id": result.id,
-                "track": track_metadata.title,
-                "artist": track_metadata.artist
-            })
-        
-        return {
-            "success": True,
-            "total_tracks": len(tracks),
-            "tasks": results
+            "source": url_type
         }
         
     except Exception as e:

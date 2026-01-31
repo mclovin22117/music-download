@@ -12,7 +12,7 @@ redis==5.0.1
 spotipy==2.23.0
 
 # YouTube download
-yt-dlp==2024.1.7
+yt-dlp>=2026.1.29
 
 # Audio processing
 mutagen==1.47.0

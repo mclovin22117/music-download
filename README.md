@@ -1,8 +1,15 @@
-# Music Download API
+# 🎵 Music Download API
 
 A FastAPI-based backend application that downloads music from Spotify or YouTube URLs and converts them to MP3 with metadata.
 
-## Features
+> **⚠️ Educational Purpose Only**: This project is for learning backend architecture, async processing, and API design. Please respect copyright laws and use responsibly.
+
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-green.svg)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+## ✨ Features
 
 - ✅ Download from **Spotify track URLs** (with automatic YouTube matching)
 - ✅ Download from **Spotify playlists**
@@ -12,6 +19,7 @@ A FastAPI-based backend application that downloads music from Spotify or YouTube
 - ✅ Album art embedding
 - ✅ Async task processing with Celery
 - ✅ Docker-based deployment
+- ✅ REST API with automatic documentation
 
 ## Architecture
 
@@ -127,6 +135,68 @@ music-download/
 └── tests/                 # Test files
 ```
 
-## License
+## 📋 Tech Stack
 
-Educational project - Not for commercial use.
+- **Backend**: FastAPI (Python 3.11)
+- **Task Queue**: Celery + Redis
+- **Media Processing**: yt-dlp, FFmpeg, mutagen
+- **APIs**: Spotify Web API (optional), YouTube (via yt-dlp)
+- **Containerization**: Docker + Docker Compose
+
+## 📸 Screenshots
+
+API automatically generates interactive documentation at `/docs`:
+- Swagger UI for testing endpoints
+- Real-time task status monitoring
+- Request/response examples
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## ⚖️ Legal Disclaimer
+
+This tool is for educational purposes only. Users are responsible for:
+- Complying with YouTube's Terms of Service
+- Respecting copyright laws in their jurisdiction
+- Not using downloaded content for commercial purposes
+- Obtaining proper permissions before downloading copyrighted material
+
+The developers assume no liability for misuse of this software.
+
+## 🐛 Known Issues
+
+- Large playlists may take time to process
+- Some YouTube videos may be age-restricted or region-locked
+- Spotify API has rate limits (handled gracefully)
+
+## 📝 TODO / Future Enhancements
+
+- [ ] Web UI frontend
+- [ ] Progress tracking for individual downloads
+- [ ] File management API (list, delete downloaded files)
+- [ ] Authentication & user accounts
+- [ ] Download queue management
+- [ ] Playlist synchronization
+- [ ] Support for more streaming services
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 💬 Support
+
+- Open an issue for bugs or feature requests
+- Check existing issues before creating new ones
+- Be respectful and constructive
+
+## 🙏 Acknowledgments
+
+- [FastAPI](https://fastapi.tiangolo.com/) for the amazing framework
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube functionality
+- [Spotipy](https://spotipy.readthedocs.io/) for Spotify API wrapper
+- [Celery](https://docs.celeryproject.org/) for task queue
+
+---
+
+**Made with ❤️ for learning purposes**

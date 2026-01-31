@@ -37,7 +37,6 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.worker
-    container_name: music-download-worker
     volumes:
       - ./app:/app/app
       - ./downloads:/app/downloads
