@@ -1,202 +1,112 @@
-# 🎵 Music Download API
+# Music Downloader - Desktop App
+Desktop application to download music from Spotify and YouTube.
 
-A FastAPI-based backend application that downloads music from Spotify or YouTube URLs and converts them to MP3 with metadata.
+## 📥 Download
 
-> **⚠️ Educational Purpose Only**: This project is for learning backend architecture, async processing, and API design. Please respect copyright laws and use responsibly.
+Go to [Releases](https://github.com/mclovin22117/music-download/releases) and download:
 
-[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-green.svg)](https://fastapi.tiangolo.com/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+- **Windows**: `Music-Downloader-Setup.exe`
+- **macOS**: `Music-Downloader.dmg`
+- **Linux**: `Music-Downloader.AppImage`
 
 ## ✨ Features
 
-- ✅ Download from **Spotify track URLs** (with automatic YouTube matching)
-- ✅ Download from **Spotify playlists**
-- ✅ Download from **YouTube video URLs** (direct)
-- ✅ Download from **YouTube playlists** (direct)
-- ✅ MP3 conversion with metadata embedding
-- ✅ Album art embedding
-- ✅ Async task processing with Celery
-- ✅ Docker-based deployment
-- ✅ REST API with automatic documentation
+- 🎵 Download from Spotify tracks and playlists
+- 🎥 Download from YouTube videos and playlists
+- 🎨 Beautiful, modern UI
+- 📊 Real-time download progress
+- 📜 Download history
+- 🚀 Fast parallel downloads
+- 🏷️ Automatic metadata tagging
 
-## Architecture
+## 🖥️ Screenshots
 
-- **API Layer**: FastAPI for REST endpoints
-- **Worker Layer**: Celery for async task processing
-- **Message Broker**: Redis for task queue
-- **Media Processing**: yt-dlp + FFmpeg for audio extraction
-- **Metadata**: Spotify Web API for track info, mutagen for MP3 tagging
+[Add screenshots here]
 
-## Setup
+## 🚀 Quick Start
 
-### Prerequisites
+1. Download the installer for your OS
+2. Install and launch
+3. Paste a Spotify or YouTube URL
+4. Click "Download Track" or "Download Playlist"
+5. Files saved to `Downloads/Music Downloader/`
 
-- Docker & Docker Compose
-- Spotify Developer Account
+## 📖 Usage
 
-### Getting Spotify API Credentials (Optional)
+### Download a Single Track
 
-**Note**: Spotify API credentials are only required if you want to download from Spotify URLs. You can use YouTube URLs without any API credentials!
+1. Copy URL from Spotify or YouTube
+2. Paste in the input field
+3. Click **"Download Track"**
+4. Wait for completion
 
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create a new app
-3. Copy the Client ID and Client Secret
+### Download a Playlist
 
-### Installation
+1. Copy playlist URL
+2. Paste in the input field
+3. Click **"Download Playlist"**
+4. All tracks download automatically
 
-1. Clone the repository
-2. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-3. (Optional) Edit `.env` and add your Spotify credentials if you want Spotify support
-4. Build and start the services:
-   ```bash
-   docker-compose up --build
-   ```
+## ⚙️ Supported URLs
 
-The API will be available at `http://localhost:8000`
+**Spotify:**
+- Tracks: `https://open.spotify.com/track/...`
+- Playlists: `https://open.spotify.com/playlist/...`
 
-## API Endpoints
+**YouTube:**
+- Videos: `https://www.youtube.com/watch?v=...`
+- Playlists: `https://www.youtube.com/playlist?list=...`
 
-### Health Check
-```
-GET /health
-```
+## 🔧 Configuration
 
-### Download Single Track
+Downloaded files location:
+- Windows: `C:\Users\YourName\Music\Music Downloader\`
+- macOS: `~/Music/Music Downloader/`
+- Linux: `~/Music/Music Downloader/`
 
-**From Spotify:**
-```bash
-POST /api/v1/tracks/download
-Content-Type: application/json
+## ⚠️ Legal Notice
 
-{
-  "url": "https://open.spotify.com/track/6rqhFgbbKwnb9MLmUQDhG6"
-}
-```
+**For personal use only.** Respect copyright laws and artists' rights. This tool is intended for:
+- Personal backups of purchased music
+- Downloading Creative Commons content
+- Educational purposes
 
-**From YouTube:**
-```bash
-POST /api/v1/tracks/download
-Content-Type: application/json
+Do NOT use for piracy or commercial distribution.
 
-{
-  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-}
-```
+## 🐛 Troubleshooting
 
-### Download Playlist
+**App won't start:**
+- Windows: Check Windows Defender/antivirus
+- macOS: Allow app in System Preferences → Security
+- Linux: Ensure AppImage has execute permissions
 
-**From Spotify:**
-```bash
-POST /api/v1/playlists/download
-Content-Type: application/json
+**Downloads fail:**
+- Check internet connection
+- Try a different URL
+- Check app logs in settings
 
-{
-  "url": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
-}
-```
+**No metadata on files:**
+- Some YouTube videos lack metadata
+- Try Spotify URL instead for better quality
 
-**From YouTube:**
-```bash
-POST /api/v1/playlists/download
-Content-Type: application/json
+## 🏗️ Build from Source
 
-{
-  "url": "https://www.youtube.com/playlist?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG"
-}
-```
-
-### Check Task Status
-```
-GET /api/v1/tracks/status/{task_id}
-```
-
-## Development
-
-### Running Tests
-```bash
-pytest tests/
-```
-
-### Project Structure
-```
-music-download/
-├── app/                    # Application code
-│   ├── api/               # API endpoints
-│   ├── services/          # Business logic
-│   ├── workers/           # Celery tasks
-│   └── utils/             # Utilities
-├── docker/                # Dockerfiles
-├── downloads/             # Output directory
-└── tests/                 # Test files
-```
-
-## 📋 Tech Stack
-
-- **Backend**: FastAPI (Python 3.11)
-- **Task Queue**: Celery + Redis
-- **Media Processing**: yt-dlp, FFmpeg, mutagen
-- **APIs**: Spotify Web API (optional), YouTube (via yt-dlp)
-- **Containerization**: Docker + Docker Compose
-
-## 📸 Screenshots
-
-API automatically generates interactive documentation at `/docs`:
-- Swagger UI for testing endpoints
-- Real-time task status monitoring
-- Request/response examples
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## ⚖️ Legal Disclaimer
-
-This tool is for educational purposes only. Users are responsible for:
-- Complying with YouTube's Terms of Service
-- Respecting copyright laws in their jurisdiction
-- Not using downloaded content for commercial purposes
-- Obtaining proper permissions before downloading copyrighted material
-
-The developers assume no liability for misuse of this software.
-
-## 🐛 Known Issues
-
-- Large playlists may take time to process
-- Some YouTube videos may be age-restricted or region-locked
-- Spotify API has rate limits (handled gracefully)
-
-## 📝 TODO / Future Enhancements
-
-- [ ] Web UI frontend
-- [ ] Progress tracking for individual downloads
-- [ ] File management API (list, delete downloaded files)
-- [ ] Authentication & user accounts
-- [ ] Download queue management
-- [ ] Playlist synchronization
-- [ ] Support for more streaming services
+See [BUILD.md](BUILD.md) for instructions.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - See [LICENSE](LICENSE)
+
+## 🙏 Credits
+
+Built with:
+- [Electron](https://www.electronjs.org/)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+- [Celery](https://docs.celeryproject.org/)
 
 ## 💬 Support
 
-- Open an issue for bugs or feature requests
-- Check existing issues before creating new ones
-- Be respectful and constructive
-
-## 🙏 Acknowledgments
-
-- [FastAPI](https://fastapi.tiangolo.com/) for the amazing framework
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube functionality
-- [Spotipy](https://spotipy.readthedocs.io/) for Spotify API wrapper
-- [Celery](https://docs.celeryproject.org/) for task queue
-
----
-
-**Made with ❤️ for learning purposes**
+- 🐛 [Report bugs](https://github.com/YOUR_USERNAME/music-download/issues)
+- 💡 [Request features](https://github.com/YOUR_USERNAME/music-download/issues)
+- ⭐ Star the repo if you like it!

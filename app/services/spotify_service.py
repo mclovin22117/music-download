@@ -1,110 +1,110 @@
 """
-Spotify API service for fetching track and playlist metadata.
+Spotify metadata service using web scraping (no API key needed).
 """
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-from typing import Dict, List, Optional
-
-from app.config import settings
-from app.models import TrackMetadata
+import json
+from typing import Dict, List
+import requests
+from bs4 import BeautifulSoup
 
 
 class SpotifyService:
-    """Service for interacting with Spotify API."""
+    """Service for fetching Spotify metadata by scraping web pages."""
     
     def __init__(self):
-        """Initialize Spotify client with credentials."""
-        auth_manager = SpotifyClientCredentials(
-            client_id=settings.spotify_client_id,
-            client_secret=settings.spotify_client_secret
-        )
-        self.client = spotipy.Spotify(auth_manager=auth_manager)
+        """Initialize HTTP session."""
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        })
     
-    def get_track_metadata(self, track_url: str) -> TrackMetadata:
+    def get_track_metadata(self, spotify_url: str) -> Dict[str, str]:
         """
-        Fetch metadata for a single track.
+        Get track metadata from Spotify URL by scraping.
         
         Args:
-            track_url: Spotify track URL or URI
-        
-        Returns:
-            TrackMetadata object
-        """
-        # Extract track ID from URL
-        track_id = self._extract_id_from_url(track_url, "track")
-        
-        # Fetch track data
-        track = self.client.track(track_id)
-        
-        return TrackMetadata(
-            title=track["name"],
-            artist=", ".join([artist["name"] for artist in track["artists"]]),
-            album=track["album"]["name"],
-            duration_ms=track["duration_ms"],
-            cover_art_url=track["album"]["images"][0]["url"] if track["album"]["images"] else None,
-            spotify_id=track["id"]
-        )
-    
-    def get_playlist_tracks(self, playlist_url: str) -> List[TrackMetadata]:
-        """
-        Fetch all tracks from a playlist.
-        
-        Args:
-            playlist_url: Spotify playlist URL or URI
-        
-        Returns:
-            List of TrackMetadata objects
-        """
-        # Extract playlist ID from URL
-        playlist_id = self._extract_id_from_url(playlist_url, "playlist")
-        
-        tracks = []
-        results = self.client.playlist_tracks(playlist_id)
-        
-        while results:
-            for item in results["items"]:
-                if item["track"]:  # Some tracks might be None
-                    track = item["track"]
-                    tracks.append(TrackMetadata(
-                        title=track["name"],
-                        artist=", ".join([artist["name"] for artist in track["artists"]]),
-                        album=track["album"]["name"],
-                        duration_ms=track["duration_ms"],
-                        cover_art_url=track["album"]["images"][0]["url"] if track["album"]["images"] else None,
-                        spotify_id=track["id"]
-                    ))
+            spotify_url: Spotify track URL
             
-            # Check for next page
-            if results["next"]:
-                results = self.client.next(results)
-            else:
-                results = None
-        
-        return tracks
-    
-    @staticmethod
-    def _extract_id_from_url(url: str, resource_type: str) -> str:
+        Returns:
+            Dictionary with track metadata
         """
-        Extract Spotify ID from URL.
+        try:
+            response = self.session.get(spotify_url, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Extract JSON-LD metadata
+            script_tag = soup.find('script', {'type': 'application/ld+json'})
+            if script_tag:
+                data = json.loads(script_tag.string)
+                return {
+                    "name": data.get('name', 'Unknown'),
+                    "artist": data.get('byArtist', {}).get('name', 'Unknown Artist'),
+                    "album": data.get('inAlbum', {}).get('name', 'Unknown Album'),
+                    "year": data.get('datePublished', '')[:4] if 'datePublished' in data else '',
+                    "cover_url": data.get('image', '')
+                }
+            
+            # Fallback: Extract from meta tags
+            title = soup.find('meta', {'property': 'og:title'})
+            artist = soup.find('meta', {'name': 'music:musician'})
+            image = soup.find('meta', {'property': 'og:image'})
+            
+            name = title['content'] if title else 'Unknown'
+            # Parse "Song · Artist" format
+            if ' · ' in name:
+                name, artist_name = name.split(' · ', 1)
+            else:
+                artist_name = artist['content'] if artist else 'Unknown Artist'
+            
+            return {
+                "name": name,
+                "artist": artist_name,
+                "album": "Unknown Album",
+                "year": "",
+                "cover_url": image['content'] if image else ""
+            }
+        except Exception as e:
+            raise Exception(f"Failed to scrape Spotify metadata: {str(e)}")
+    
+    def get_playlist_tracks(self, playlist_url: str) -> List[Dict[str, str]]:
+        """
+        Get all tracks from a Spotify playlist by scraping.
         
         Args:
-            url: Spotify URL or URI
-            resource_type: Type of resource (track, playlist, album)
-        
+            playlist_url: Spotify playlist URL
+            
         Returns:
-            Spotify ID
+            List of track metadata dictionaries
         """
-        # Handle spotify: URIs
-        if url.startswith("spotify:"):
-            return url.split(":")[-1]
-        
-        # Handle open.spotify.com URLs
-        if "open.spotify.com" in url:
-            parts = url.split("/")
-            if resource_type in parts:
-                idx = parts.index(resource_type)
-                spotify_id = parts[idx + 1].split("?")[0]  # Remove query parameters
-                return spotify_id
-        
-        # Assume it's already an ID
-        return url
+        try:
+            response = self.session.get(playlist_url, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            tracks = []
+            
+            # Find Spotify embed data in script tags
+            scripts = soup.find_all('script', {'type': 'application/ld+json'})
+            for script in scripts:
+                try:
+                    data = json.loads(script.string)
+                    if data.get('@type') == 'MusicPlaylist':
+                        track_list = data.get('track', [])
+                        for track in track_list:
+                            tracks.append({
+                                "name": track.get('name', 'Unknown'),
+                                "artist": track.get('byArtist', {}).get('name', 'Unknown Artist'),
+                                "album": track.get('inAlbum', {}).get('name', 'Unknown Album'),
+                                "year": track.get('datePublished', '')[:4] if 'datePublished' in track else '',
+                                "cover_url": track.get('image', '')
+                            })
+                except (json.JSONDecodeError, KeyError):
+                    continue
+            
+            if not tracks:
+                raise ValueError("No tracks found in playlist")
+            
+            return tracks
+        except Exception as e:
+            raise Exception(f"Failed to scrape playlist: {str(e)}")

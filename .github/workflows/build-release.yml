@@ -1,0 +1,168 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt pyinstaller
+      
+      - name: Build backend executable
+        run: |
+          pyinstaller --onefile \
+            --name music-downloader \
+            --add-data "app:app" \
+            --hidden-import=celery \
+            --hidden-import=uvicorn \
+            --hidden-import=fastapi \
+            --hidden-import=starlette \
+            --hidden-import=pydantic \
+            --hidden-import=redis \
+            --hidden-import=requests \
+            --hidden-import=beautifulsoup4 \
+            app/main.py
+      
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-linux
+          path: dist/music-downloader
+
+  build-electron-windows:
+    needs: build-backend
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Download backend
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-linux
+          path: backend/
+      
+      - name: Install Electron dependencies
+        run: |
+          cd electron
+          npm install
+      
+      - name: Build Electron app (Windows)
+        run: |
+          cd electron
+          npm run build:win
+      
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: electron/dist/*.exe
+
+  build-electron-mac:
+    needs: build-backend
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Download backend
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-linux
+          path: backend/
+      
+      - name: Install Electron dependencies
+        run: |
+          cd electron
+          npm install
+      
+      - name: Build Electron app (macOS)
+        run: |
+          cd electron
+          npm run build:mac
+      
+      - name: Upload macOS build
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-build
+          path: electron/dist/*.dmg
+
+  build-electron-linux:
+    needs: build-backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Download backend
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-linux
+          path: backend/
+      
+      - name: Make backend executable
+        run: chmod +x backend/music-downloader
+      
+      - name: Install Electron dependencies
+        run: |
+          cd electron
+          npm install
+      
+      - name: Build Electron app (Linux)
+        run: |
+          cd electron
+          npm run build:linux
+      
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-build
+          path: |
+            electron/dist/*.AppImage
+            electron/dist/*.deb
+
+  create-release:
+    needs: [build-electron-windows, build-electron-mac, build-electron-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            windows-build/*
+            macos-build/*
+            linux-build/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

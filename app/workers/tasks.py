@@ -44,12 +44,6 @@ def download_track_task(self, url: str) -> Dict:
         # Handle based on URL type
         if url_type == URLType.SPOTIFY_TRACK:
             # Spotify workflow: Get metadata from Spotify, search YouTube
-            if not settings.spotify_client_id or not settings.spotify_client_secret:
-                return {
-                    "success": False,
-                    "error": "Spotify API credentials not configured",
-                    "track": "Unknown"
-                }
             
             spotify_service = SpotifyService()
             metadata = spotify_service.get_track_metadata(url)
@@ -151,11 +145,6 @@ def download_playlist_task(self, url: str) -> Dict:
         
         if url_type == URLType.SPOTIFY_PLAYLIST:
             # Spotify playlist workflow
-            if not settings.spotify_client_id or not settings.spotify_client_secret:
-                return {
-                    "success": False,
-                    "error": "Spotify API credentials not configured"
-                }
             
             spotify_service = SpotifyService()
             tracks = spotify_service.get_playlist_tracks(url)

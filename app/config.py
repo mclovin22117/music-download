@@ -10,9 +10,6 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
-    # Spotify API (optional - only needed for Spotify URLs)
-    spotify_client_id: Optional[str] = None
-    spotify_client_secret: Optional[str] = None
     
     # Redis
     redis_host: str = "redis"
