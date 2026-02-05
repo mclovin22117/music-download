@@ -19,10 +19,6 @@ Go to [Releases](https://github.com/mclovin22117/music-download/releases) and do
 - 🚀 Fast parallel downloads
 - 🏷️ Automatic metadata tagging
 
-## 🖥️ Screenshots
-
-[Add screenshots here]
-
 ## 🚀 Quick Start
 
 1. Download the installer for your OS
