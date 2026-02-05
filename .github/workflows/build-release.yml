@@ -10,10 +10,10 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
@@ -37,7 +37,7 @@ jobs:
             app/main.py
       
       - name: Upload backend artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-linux
           path: dist/music-downloader
@@ -46,15 +46,15 @@ jobs:
     needs: build-backend
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
       
       - name: Download backend
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend-linux
           path: backend/
@@ -70,7 +70,7 @@ jobs:
           npm run build:win
       
       - name: Upload Windows build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: electron/dist/*.exe
@@ -79,15 +79,15 @@ jobs:
     needs: build-backend
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
       
       - name: Download backend
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend-linux
           path: backend/
@@ -103,7 +103,7 @@ jobs:
           npm run build:mac
       
       - name: Upload macOS build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-build
           path: electron/dist/*.dmg
@@ -112,15 +112,15 @@ jobs:
     needs: build-backend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
       
       - name: Download backend
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend-linux
           path: backend/
@@ -139,7 +139,7 @@ jobs:
           npm run build:linux
       
       - name: Upload Linux build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: |
@@ -150,18 +150,20 @@ jobs:
     needs: [build-electron-windows, build-electron-mac, build-electron-linux]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
       
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
-            windows-build/*
-            macos-build/*
-            linux-build/*
+            artifacts/windows-build/*
+            artifacts/macos-build/*
+            artifacts/linux-build/*
           draft: false
           prerelease: false
         env:
