@@ -33,6 +33,8 @@ function startBackend() {
     
     if (!fs.existsSync(backendPath)) {
         console.error('Backend executable not found:', backendPath);
+        console.error('Expected at:', backendPath);
+        console.error('Resource path:', process.resourcesPath);
         return;
     }
 
@@ -40,9 +42,9 @@ function startBackend() {
     
     backendProcess = spawn(backendPath, [], {
         env: {
-            ...process.env,
-            REDIS_HOST: 'localhost'
-        }
+            ...process.env
+        },
+        cwd: path.dirname(backendPath)
     });
 
     backendProcess.stdout.on('data', (data) => {

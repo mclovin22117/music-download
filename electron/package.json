@@ -29,16 +29,13 @@
     "files": [
       "main.js",
       "preload.js",
-      "../frontend/**/*",
-      "../backend/**/*"
+      "../frontend/**/*"
     ],
     "extraResources": [
       {
-        "from": "../backend/music-downloader",
-        "to": "backend/music-downloader",
-        "filter": [
-          "**/*"
-        ]
+        "from": "../backend/",
+        "to": "backend",
+        "filter": ["music-downloader*"]
       }
     ],
     "win": {
