@@ -26,18 +26,7 @@ jobs:
       
       - name: Build backend executable
         run: |
-          pyinstaller --onefile \
-            --name music-downloader \
-            --add-data "app:app" \
-            --hidden-import=uvicorn \
-            --hidden-import=fastapi \
-            --hidden-import=starlette \
-            --hidden-import=pydantic \
-            --hidden-import=requests \
-            --hidden-import=beautifulsoup4 \
-            --hidden-import=mutagen \
-            --hidden-import=yt_dlp \
-            app/main_standalone.py
+          pyinstaller music-downloader.spec
       
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
