@@ -74,11 +74,18 @@ function createWindow() {
         backgroundColor: '#667eea'
     });
 
+    // In production, frontend is in resources/app/frontend
+    // In dev, it's in ../frontend
     const frontendPath = isDev 
         ? path.join(__dirname, '..', 'frontend', 'index.html')
-        : path.join(__dirname, 'frontend', 'index.html');
+        : path.join(process.resourcesPath, 'frontend', 'index.html');
 
-    mainWindow.loadFile(frontendPath);
+    console.log('Loading frontend from:', frontendPath);
+    console.log('Frontend exists:', fs.existsSync(frontendPath));
+
+    mainWindow.loadFile(frontendPath).catch(err => {
+        console.error('Failed to load frontend:', err);
+    });
 
     if (isDev) {
         mainWindow.webContents.openDevTools();
