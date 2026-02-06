@@ -62,7 +62,7 @@ jobs:
       - name: Install Electron dependencies
         run: |
           cd electron
-          npm install
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
       
       - name: Build Electron app (Windows)
         run: |
@@ -95,7 +95,7 @@ jobs:
       - name: Install Electron dependencies
         run: |
           cd electron
-          npm install
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
       
       - name: Build Electron app (macOS)
         run: |
@@ -131,7 +131,7 @@ jobs:
       - name: Install Electron dependencies
         run: |
           cd electron
-          npm install
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
       
       - name: Build Electron app (Linux)
         run: |
