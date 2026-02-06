@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Download music from Spotify and YouTube",
   "main": "main.js",
-  "author": "Your Name",
+  "homepage": "https://github.com/mclovin22117/music-download",
+  "author": {
+    "name": "mclovin22117",
+    "email": "contact@example.com"
+  },
   "license": "MIT",
   "scripts": {
     "start": "electron .",
@@ -59,7 +63,8 @@
         "deb"
       ],
       "icon": "icon.png",
-      "category": "Audio"
+      "category": "Audio",
+      "maintainer": "mclovin22117 <contact@example.com>"
     },
     "nsis": {
       "oneClick": false,
