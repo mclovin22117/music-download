@@ -29,15 +29,15 @@ jobs:
           pyinstaller --onefile \
             --name music-downloader \
             --add-data "app:app" \
-            --hidden-import=celery \
             --hidden-import=uvicorn \
             --hidden-import=fastapi \
             --hidden-import=starlette \
             --hidden-import=pydantic \
-            --hidden-import=redis \
             --hidden-import=requests \
             --hidden-import=beautifulsoup4 \
-            app/main.py
+            --hidden-import=mutagen \
+            --hidden-import=yt_dlp \
+            app/main_standalone.py
       
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
