@@ -32,9 +32,8 @@
     ],
     "extraResources": [
       {
-        "from": "../backend/",
-        "to": "backend",
-        "filter": ["music-downloader*"]
+        "from": "../backend/music-downloader",
+        "to": "backend/"
       },
       {
         "from": "../frontend/",
