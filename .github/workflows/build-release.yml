@@ -51,6 +51,13 @@ jobs:
           name: backend-linux
           path: backend/
       
+      - name: Verify backend exists
+        shell: bash
+        run: |
+          ls -la backend/
+          echo "Backend file info:"
+          file backend/music-downloader || echo "file command not available"
+      
       - name: Install Electron dependencies
         run: |
           cd electron
@@ -83,6 +90,12 @@ jobs:
         with:
           name: backend-linux
           path: backend/
+      
+      - name: Make backend executable and verify
+        run: |
+          chmod +x backend/music-downloader
+          ls -la backend/
+          file backend/music-downloader
       
       - name: Install Electron dependencies
         run: |
@@ -117,8 +130,11 @@ jobs:
           name: backend-linux
           path: backend/
       
-      - name: Make backend executable
-        run: chmod +x backend/music-downloader
+      - name: Make backend executable and verify
+        run: |
+          chmod +x backend/music-downloader
+          ls -la backend/
+          file backend/music-downloader
       
       - name: Install Electron dependencies
         run: |
