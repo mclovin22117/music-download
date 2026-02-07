@@ -33,7 +33,7 @@
     "extraResources": [
       {
         "from": "../backend/music-downloader",
-        "to": "backend/"
+        "to": "backend/music-downloader"
       },
       {
         "from": "../frontend/",
