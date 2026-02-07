@@ -242,10 +242,13 @@ function renderHistory() {
 
 // Check if backend is running on load
 window.addEventListener('load', async () => {
+    console.log('Checking backend connection...');
     try {
-        await fetch(`${API_BASE}/health`);
-        console.log('✓ Backend connected');
+        const response = await fetch(`${API_BASE}/health`);
+        const data = await response.json();
+        console.log('✓ Backend connected:', data);
     } catch (error) {
-        showError('⚠️ Backend not running. Please start the service first.');
+        console.error('✗ Backend not running:', error);
+        showError('⚠️ Backend not running. Please restart the application.');
     }
 });

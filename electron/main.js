@@ -31,14 +31,28 @@ function startBackend() {
 
     const backendPath = getBackendPath();
     
+    console.log('=== Backend Startup Debug ===');
+    console.log('Platform:', process.platform);
+    console.log('Packaged:', app.isPackaged);
+    console.log('Resource path:', process.resourcesPath);
+    console.log('Backend path:', backendPath);
+    console.log('Backend exists:', fs.existsSync(backendPath));
+    
     if (!fs.existsSync(backendPath)) {
-        console.error('Backend executable not found:', backendPath);
+        console.error('❌ Backend executable not found!');
         console.error('Expected at:', backendPath);
-        console.error('Resource path:', process.resourcesPath);
+        
+        // Try to list what's actually in the backend directory
+        const backendDir = path.dirname(backendPath);
+        if (fs.existsSync(backendDir)) {
+            console.log('Files in backend dir:', fs.readdirSync(backendDir));
+        } else {
+            console.error('Backend directory does not exist:', backendDir);
+        }
         return;
     }
 
-    console.log('Starting backend:', backendPath);
+    console.log('✅ Backend executable found, starting...');
     
     backendProcess = spawn(backendPath, [], {
         env: {
@@ -48,15 +62,19 @@ function startBackend() {
     });
 
     backendProcess.stdout.on('data', (data) => {
-        console.log(`Backend: ${data}`);
+        console.log(`[Backend]: ${data}`);
     });
 
     backendProcess.stderr.on('data', (data) => {
-        console.error(`Backend error: ${data}`);
+        console.error(`[Backend Error]: ${data}`);
     });
 
     backendProcess.on('close', (code) => {
-        console.log(`Backend exited with code ${code}`);
+        console.log(`[Backend]: Process exited with code ${code}`);
+    });
+
+    backendProcess.on('error', (err) => {
+        console.error(`[Backend]: Failed to start:`, err);
     });
 }
 
@@ -97,10 +115,18 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+    console.log('=== App Ready ===');
+    console.log('Is packaged:', app.isPackaged);
+    console.log('Is dev mode:', isDev);
+    
     startBackend();
     
-    // Wait 2 seconds for backend to start
-    setTimeout(createWindow, 2000);
+    // Wait longer for backend to start (5 seconds)
+    console.log('Waiting 5 seconds for backend to initialize...');
+    setTimeout(() => {
+        console.log('Creating window...');
+        createWindow();
+    }, 5000);
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
