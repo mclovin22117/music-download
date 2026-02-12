@@ -5,7 +5,7 @@ services:
     image: redis:7-alpine
     container_name: music-download-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -24,6 +24,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./downloads:/app/downloads
+      - ./index.html:/app/index.html
     env_file:
       - .env
     depends_on:
