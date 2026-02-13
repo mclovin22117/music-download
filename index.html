@@ -35,13 +35,18 @@
             status.innerHTML = '⏳ Starting download...';
             
             try {
-                const res = await fetch('http://localhost:8000/api/v1/tracks/download', {
+                const res = await fetch('/api/v1/tracks/download', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({url})
                 });
                 const data = await res.json();
-                checkStatus(data.task_id);
+                
+                if (data.task_id) {
+                    checkStatus(data.task_id);
+                } else {
+                    status.innerHTML = '❌ Error: No task ID returned';
+                }
             } catch(e) {
                 status.innerHTML = '❌ Error: ' + e.message;
             }
@@ -50,18 +55,31 @@
         async function checkStatus(taskId) {
             const status = document.getElementById('status');
             const interval = setInterval(async () => {
-                const res = await fetch(`http://localhost:8000/api/v1/tracks/status/${taskId}`);
-                const data = await res.json();
-                status.innerHTML = `Status: ${data.status}<br>Track: ${data.track || 'Processing...'}`;
-                
-                if(data.status === 'completed') {
+                try {
+                    const res = await fetch(`/api/v1/tracks/status/${taskId}`);
+                    const data = await res.json();
+                    
+                    // Show current status
+                    const trackName = data.result?.track || 'Processing...';
+                    status.innerHTML = `Status: ${data.status}<br>Track: ${trackName}`;
+                    
+                    if(data.status === 'completed') {
+                        clearInterval(interval);
+                        if (data.result?.success) {
+                            const track = `${data.result.artist} - ${data.result.track}`;
+                            status.innerHTML = '✅ Downloaded: ' + track;
+                            addHistory(track);
+                        } else {
+                            status.innerHTML = '❌ Failed: ' + (data.result?.error || 'Unknown error');
+                        }
+                    }
+                    if(data.status === 'failed') {
+                        clearInterval(interval);
+                        status.innerHTML = '❌ Failed: ' + (data.error || 'Unknown error');
+                    }
+                } catch(e) {
                     clearInterval(interval);
-                    status.innerHTML = '✅ Downloaded: ' + data.track;
-                    addHistory(data.track);
-                }
-                if(data.status === 'failed') {
-                    clearInterval(interval);
-                    status.innerHTML = '❌ Failed: ' + data.error;
+                    status.innerHTML = '❌ Error checking status: ' + e.message;
                 }
             }, 1000);
         }
