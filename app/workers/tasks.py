@@ -44,9 +44,20 @@ def download_track_task(self, url: str) -> Dict:
         # Handle based on URL type
         if url_type == URLType.SPOTIFY_TRACK:
             # Spotify workflow: Get metadata from Spotify, search YouTube
+            from app.models import TrackMetadata
             
             spotify_service = SpotifyService()
-            metadata = spotify_service.get_track_metadata(url)
+            metadata_dict = spotify_service.get_track_metadata(url)
+            
+            # Convert dict to TrackMetadata object
+            metadata = TrackMetadata(
+                title=metadata_dict.get('name', 'Unknown'),
+                artist=metadata_dict.get('artist', 'Unknown Artist'),
+                album=metadata_dict.get('album', 'Unknown Album'),
+                duration_ms=0,  # Not available from web scraping
+                cover_art_url=metadata_dict.get('cover_url', ''),
+                spotify_id=url_id
+            )
             
             # Update task state
             self.update_state(state="PROGRESS", meta={"step": "Searching YouTube"})
@@ -145,26 +156,32 @@ def download_playlist_task(self, url: str) -> Dict:
         
         if url_type == URLType.SPOTIFY_PLAYLIST:
             # Spotify playlist workflow
+            from app.models import TrackMetadata
             
             spotify_service = SpotifyService()
-            tracks = spotify_service.get_playlist_tracks(url)
+            tracks_data = spotify_service.get_playlist_tracks(url)
             
             # Update task state
             self.update_state(
                 state="PROGRESS",
-                meta={"step": f"Processing {len(tracks)} tracks"}
+                meta={"step": f"Processing {len(tracks_data)} tracks"}
             )
             
             # Create subtasks for each track
-            for track_metadata in tracks:
-                # Construct Spotify URL from track ID
-                track_url = f"https://open.spotify.com/track/{track_metadata.spotify_id}"
-                result = download_track_task.delay(track_url)
-                results.append({
-                    "task_id": result.id,
-                    "track": track_metadata.title,
-                    "artist": track_metadata.artist
-                })
+            for track_dict in tracks_data:
+                # Note: playlist scraping doesn't provide track IDs or Spotify URLs
+                # So we'll search YouTube directly with artist + track name
+                youtube_service = YouTubeService()
+                search_query = f"{track_dict.get('artist', 'Unknown')} {track_dict.get('name', 'Unknown')}"
+                youtube_url = youtube_service.search(search_query)
+                
+                if youtube_url:
+                    result = download_track_task.delay(youtube_url)
+                    results.append({
+                        "task_id": result.id,
+                        "track": track_dict.get('name', 'Unknown'),
+                        "artist": track_dict.get('artist', 'Unknown')
+                    })
         
         elif url_type == URLType.YOUTUBE_PLAYLIST:
             # YouTube playlist workflow

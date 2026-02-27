@@ -1,66 +1,155 @@
-# Music Downloader - Desktop App
-Desktop application to download music from Spotify and YouTube.
+# Music Downloader
 
-## 📥 Download
+A simple web-based music downloader that fetches tracks from Spotify and YouTube URLs.
 
-Go to [Releases](https://github.com/mclovin22117/music-download/releases) and download:
+## Prerequisites
 
-- **Windows**: `Music-Downloader-Setup.exe`
-- **macOS**: `Music-Downloader.dmg`
-- **Linux**: `Music-Downloader.AppImage`
+- **Docker** and **Docker Compose** installed on your system
+- Internet connection
 
-## ✨ Features
+## Quick Start
 
-- 🎵 Download from Spotify tracks and playlists
-- 🎥 Download from YouTube videos and playlists
-- 🎨 Beautiful, modern UI
-- 📊 Real-time download progress
-- 📜 Download history
-- 🚀 Fast parallel downloads
-- 🏷️ Automatic metadata tagging
+### 1. Start the Project
 
-## 🚀 Quick Start
+Open a terminal in the project directory and run:
 
-1. Download the installer for your OS
-2. Install and launch
-3. Paste a Spotify or YouTube URL
-4. Click "Download Track" or "Download Playlist"
-5. Files saved to `Downloads/Music Downloader/`
+```bash
+docker-compose up -d
+```
 
-## 📖 Usage
+This will start all services in the background:
+- Redis (database)
+- FastAPI API server (port 8000)
+- 2 Celery workers (for background downloads)
 
-### Download a Single Track
+### 2. Access the Web UI
 
-1. Copy URL from Spotify or YouTube
-2. Paste in the input field
-3. Click **"Download Track"**
-4. Wait for completion
+Open your browser and go to:
 
-### Download a Playlist
+```
+http://localhost:8000
+```
 
-1. Copy playlist URL
-2. Paste in the input field
-3. Click **"Download Playlist"**
-4. All tracks download automatically
+### 3. Download Music
 
-## ⚙️ Supported URLs
+1. Paste a Spotify or YouTube URL in the input field
+2. Click the "Download" button
+3. Wait for the download to complete
+4. Downloaded files are saved in the `downloads/` folder
 
-**Spotify:**
-- Tracks: `https://open.spotify.com/track/...`
-- Playlists: `https://open.spotify.com/playlist/...`
+**Supported URLs:**
+- Spotify tracks: `https://open.spotify.com/track/...`
+- YouTube videos: `https://www.youtube.com/watch?v=...`
 
-**YouTube:**
-- Videos: `https://www.youtube.com/watch?v=...`
-- Playlists: `https://www.youtube.com/playlist?list=...`
+## Managing the Project
 
-## 🔧 Configuration
+### Stop the Project
 
-Downloaded files location:
-- Windows: `C:\Users\YourName\Music\Music Downloader\`
-- macOS: `~/Music/Music Downloader/`
-- Linux: `~/Music/Music Downloader/`
+```bash
+docker-compose down
+```
 
-## ⚠️ Legal Notice
+### Restart After Changes
+
+If you make code changes:
+
+```bash
+docker-compose restart api worker
+```
+
+### View Logs
+
+To see what's happening:
+
+```bash
+# View all logs
+docker-compose logs -f
+
+# View only API logs
+docker-compose logs -f api
+
+# View only worker logs
+docker-compose logs -f worker
+```
+
+### Check Container Status
+
+```bash
+docker-compose ps
+```
+
+All containers should show "Up" status.
+
+## Troubleshooting
+
+### Port 8000 Already in Use
+
+If you get an error that port 8000 is already in use:
+
+```bash
+# Stop the containers
+docker-compose down
+
+# Check what's using port 8000
+sudo lsof -i :8000
+
+# Kill the process or change the port in docker-compose.yml
+```
+
+### Downloads Failing
+
+1. Check the worker logs: `docker-compose logs worker`
+2. Make sure you have internet connection
+3. Verify the URL is correct and accessible
+
+### Containers Won't Start
+
+```bash
+# Clean up and restart
+docker-compose down
+docker-compose up -d
+
+# If still failing, rebuild
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+## Project Structure
+
+```
+music-download/
+├── app/
+│   ├── main.py              # FastAPI application
+│   ├── api/endpoints/       # API routes
+│   ├── services/            # Spotify & YouTube services
+│   ├── workers/             # Celery tasks
+│   └── utils/               # Helper functions
+├── downloads/               # Downloaded music files
+├── docker-compose.yml       # Docker configuration
+├── index.html               # Web UI
+└── README.md               # This file
+```
+
+## Features
+
+- ✅ Download from Spotify (web scraping, no API key needed)
+- ✅ Download from YouTube (yt-dlp)
+- ✅ Automatic metadata tagging (artist, title, album)
+- ✅ Web-based UI
+- ✅ Background task processing
+- ✅ MP3 format output
+
+## Tech Stack
+
+- **Backend**: FastAPI + Python
+- **Task Queue**: Celery + Redis
+- **Downloads**: yt-dlp
+- **Scraping**: BeautifulSoup4
+- **Frontend**: Vanilla HTML/CSS/JavaScript
+- **Deployment**: Docker Compose
+
+## Legal Notice
 
 **For personal use only.** Respect copyright laws and artists' rights. This tool is intended for:
 - Personal backups of purchased music
@@ -69,40 +158,6 @@ Downloaded files location:
 
 Do NOT use for piracy or commercial distribution.
 
-## 🐛 Troubleshooting
+---
 
-**App won't start:**
-- Windows: Check Windows Defender/antivirus
-- macOS: Allow app in System Preferences → Security
-- Linux: Ensure AppImage has execute permissions
-
-**Downloads fail:**
-- Check internet connection
-- Try a different URL
-- Check app logs in settings
-
-**No metadata on files:**
-- Some YouTube videos lack metadata
-- Try Spotify URL instead for better quality
-
-## 🏗️ Build from Source
-
-See [BUILD.md](BUILD.md) for instructions.
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE)
-
-## 🙏 Credits
-
-Built with:
-- [Electron](https://www.electronjs.org/)
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- [Celery](https://docs.celeryproject.org/)
-
-## 💬 Support
-
-- 🐛 [Report bugs](https://github.com/YOUR_USERNAME/music-download/issues)
-- 💡 [Request features](https://github.com/YOUR_USERNAME/music-download/issues)
-- ⭐ Star the repo if you like it!
+**Need help?** Check the logs with `docker-compose logs -f` to see what's happening.

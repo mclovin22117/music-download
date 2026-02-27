@@ -53,36 +53,41 @@
         }
         
         async function checkStatus(taskId) {
-            const status = document.getElementById('status');
-            const interval = setInterval(async () => {
-                try {
-                    const res = await fetch(`/api/v1/tracks/status/${taskId}`);
-                    const data = await res.json();
-                    
-                    // Show current status
-                    const trackName = data.result?.track || 'Processing...';
-                    status.innerHTML = `Status: ${data.status}<br>Track: ${trackName}`;
-                    
-                    if(data.status === 'completed') {
-                        clearInterval(interval);
-                        if (data.result?.success) {
-                            const track = `${data.result.artist} - ${data.result.track}`;
-                            status.innerHTML = '✅ Downloaded: ' + track;
-                            addHistory(track);
-                        } else {
-                            status.innerHTML = '❌ Failed: ' + (data.result?.error || 'Unknown error');
-                        }
+    const status = document.getElementById('status');
+    const interval = setInterval(async () => {
+        try {
+            const res = await fetch(`/api/v1/tracks/status/${taskId}`);
+            const data = await res.json();
+            
+            // Show current status
+            status.innerHTML = `Status: ${data.status}`;
+            
+            if(data.status === 'completed') {
+                clearInterval(interval);
+                // Check if result exists and has expected structure
+                if (data.result && typeof data.result === 'object') {
+                    if (data.result.success) {
+                        const track = `${data.result.artist || 'Unknown'} - ${data.result.track || 'Unknown'}`;
+                        status.innerHTML = '✅ Downloaded: ' + track;
+                        addHistory(track);
+                    } else {
+                        status.innerHTML = '❌ Failed: ' + (data.result.error || JSON.stringify(data.result));
                     }
-                    if(data.status === 'failed') {
-                        clearInterval(interval);
-                        status.innerHTML = '❌ Failed: ' + (data.error || 'Unknown error');
-                    }
-                } catch(e) {
-                    clearInterval(interval);
-                    status.innerHTML = '❌ Error checking status: ' + e.message;
+                } else {
+                    status.innerHTML = '❌ Failed: Invalid response format';
                 }
-            }, 1000);
+            }
+            if(data.status === 'failed') {
+                clearInterval(interval);
+                const errorMsg = data.error || (data.result ? JSON.stringify(data.result) : 'Unknown error');
+                status.innerHTML = '❌ Failed: ' + errorMsg;
+            }
+        } catch(e) {
+            clearInterval(interval);
+            status.innerHTML = '❌ Error: ' + e.message;
         }
+    }, 1000);
+}
         
         function addHistory(track) {
             const history = document.getElementById('history');
