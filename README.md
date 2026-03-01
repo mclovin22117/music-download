@@ -49,6 +49,11 @@ http://localhost:8000
 docker-compose down
 ```
 
+### python env
+source venv/bin/activate
+### to deactivate venv
+deactivate
+
 ### Restart After Changes
 
 If you make code changes:
