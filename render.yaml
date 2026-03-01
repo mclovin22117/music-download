@@ -1,0 +1,38 @@
+services:
+  - type: redis
+    name: music-download-redis
+    plan: free
+    
+  - type: web
+    name: music-download-api
+    env: docker
+    plan: free
+    dockerfilePath: ./docker/Dockerfile.api
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: music-download-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: music-download-redis
+          property: port
+    
+  - type: worker
+    name: music-download-worker
+    env: docker
+    plan: free
+    dockerfilePath: ./docker/Dockerfile.worker
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: music-download-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: music-download-redis
+          property: port
