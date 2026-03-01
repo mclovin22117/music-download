@@ -2,6 +2,7 @@ services:
   - type: redis
     name: music-download-redis
     plan: free
+    ipAllowList: []  # Added: empty list allows all IPs (required for free tier)
     
   - type: web
     name: music-download-api
